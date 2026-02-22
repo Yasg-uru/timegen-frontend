@@ -1,6 +1,6 @@
 "use client"
 
-import type { Slot, TimeSlot, LunchSlot, Faculty } from '@/lib/types'
+import type { Slot,  LunchSlot, Faculty } from '@/lib/types'
 import { Card } from '@/components/ui/card'
 import { SlotItem } from '@/components/slot-item'
 import { Calendar } from 'lucide-react'
