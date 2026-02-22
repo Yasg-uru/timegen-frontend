@@ -1,6 +1,5 @@
 import axios from 'axios'
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000/api'
+import { API_BASE } from './config'
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -8,5 +7,8 @@ const api = axios.create({
     'Content-Type': 'application/json'
   }
 })
+
+// send cookies by default for auth flows
+api.defaults.withCredentials = true
 
 export default api

@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Button } from "@/components/ui/button"
+import api from '../lib/api'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -21,9 +22,9 @@ export default function ForgotPassword() {
   async function onSubmit(values: z.infer<typeof schema>) {
     setError(null)
     try {
-      const resp = await fetch('/api/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values) })
-      const data = await resp.json()
-      if (!resp.ok) throw new Error(data?.message || 'Failed')
+      const resp = await api.post('/auth/forgot-password', values)
+      const data = resp.data
+      if (!resp || resp.status >= 400) throw new Error(data?.message || 'Failed')
       setToken(data.token)
     } catch (err: any) {
       setError(err?.message || 'Failed')

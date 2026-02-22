@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import api from '../lib/api'
+import { API_BASE } from '../lib/config'
 
 type TimetableMeta = {
   _id: string
@@ -82,7 +83,7 @@ export default function Timetables() {
                     <td style={{ padding: 8, borderBottom: '1px solid #f0f0f0' }}>{item.createdBy?.name || item.createdBy?.email || '-'}</td>
                     <td style={{ padding: 8, borderBottom: '1px solid #f0f0f0' }}>
                     <button onClick={() => viewHtml(item._id)} style={{ marginRight: 8 }}>View</button>
-                    <a href={`/api/timetable/generated/${item._id}/html`} target="_blank" rel="noreferrer">
+                    <a href={`${API_BASE}/timetable/generated/${item._id}/html`} target="_blank" rel="noreferrer">
                       Open
                     </a>
                   </td>

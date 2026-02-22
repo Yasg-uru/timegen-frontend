@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { API_BASE } from '../lib/config'
+import api from '../lib/api'
 
 type User = { id: string; email: string; name?: string; role?: string } | null;
 
@@ -9,12 +11,10 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
-  fetchWithAuth: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
+  fetchWithAuth: (input: RequestInfo, init?: RequestInit) => Promise<any>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const API_BASE = '';
 
 function getStored() {
   const accessToken = localStorage.getItem('accessToken');
@@ -47,14 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   async function doRefresh(): Promise<boolean> {
     if (!refreshToken) return false;
     try {
-      const res = await fetch(`${API_BASE}/api/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ refreshToken })
-      });
-      if (!res.ok) return false;
-      const data = await res.json();
+      const res = await api.post('/auth/refresh', { refreshToken });
+      const data = res.data;
       setAccessToken(data.accessToken);
       setRefreshToken(data.refreshToken);
       return true;
@@ -64,45 +58,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   async function fetchWithAuth(input: RequestInfo, init: RequestInit = {}) {
-    const headers = new Headers(init.headers || {});
-    if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
-    const res = await fetch(input, { ...init, headers, credentials: 'include' });
-    if (res.status === 401) {
-      const ok = await doRefresh();
-      if (!ok) return res;
-      const headers2 = new Headers(init.headers || {});
-      if (localStorage.getItem('accessToken')) headers2.set('Authorization', `Bearer ${localStorage.getItem('accessToken')}`);
-      return fetch(input, { ...init, headers: headers2, credentials: 'include' });
+    // convert input like '/api/..' to axios path '/..' because api.baseURL already includes /api
+    let url: string
+    if (typeof input === 'string') {
+      if (input.startsWith('/api')) url = input.replace(/^\/api/, '')
+      else url = input
+    } else {
+      // Request objects are uncommon here; fallback to string coercion
+      url = String(input)
     }
-    return res;
+
+    const method = (init.method || 'GET') as any
+    const data = init.body ? JSON.parse(String(init.body)) : undefined
+    const headers = { ...(init.headers as Record<string, any> || {}) }
+    if (accessToken) headers.Authorization = `Bearer ${accessToken}`
+
+    try {
+      const res = await api.request({ url, method, data, headers })
+      return res
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        const ok = await doRefresh()
+        if (!ok) throw err
+        const newToken = localStorage.getItem('accessToken')
+        if (newToken) headers.Authorization = `Bearer ${newToken}`
+        const retry = await api.request({ url, method, data, headers })
+        return retry
+      }
+      throw err
+    }
   }
 
   async function login(email: string, password: string) {
-    const res = await fetch(`${API_BASE}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ email, password })
-    });
-    if (!res.ok) throw new Error('Login failed');
-    const data = await res.json();
-    setUser(data.user);
-    setAccessToken(data.accessToken);
-    setRefreshToken(data.refreshToken);
+    const res = await api.post('/auth/login', { email, password })
+    const data = res.data
+    setUser(data.user)
+    setAccessToken(data.accessToken)
+    setRefreshToken(data.refreshToken)
   }
 
   async function register(email: string, password: string, name?: string) {
-    const res = await fetch(`${API_BASE}/api/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ email, password, name })
-    });
-    if (!res.ok) throw new Error('Registration failed');
-    const data = await res.json();
-    setUser(data.user);
-    setAccessToken(data.accessToken);
-    setRefreshToken(data.refreshToken);
+    const res = await api.post('/auth/register', { email, password, name })
+    const data = res.data
+    setUser(data.user)
+    setAccessToken(data.accessToken)
+    setRefreshToken(data.refreshToken)
   }
 
   async function logout() {
