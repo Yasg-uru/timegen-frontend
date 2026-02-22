@@ -3,7 +3,7 @@
 import type { GeneratedTimetable } from '@/lib/types'
 import { Card } from '@/components/ui/card'
 
-import { User, BookOpen, Building2, Calendar, Users } from 'lucide-react'
+import { User, BookOpen, Building2, Calendar } from 'lucide-react'
 import { Badge } from './ui/badge'
 
 interface TimetableHeaderProps {

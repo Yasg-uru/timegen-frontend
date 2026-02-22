@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import type { GeneratedTimetable } from '@/lib/types'
 import { getGeneratedTimetableById } from '@/services/timetableService'
 import { TimetableHeader } from '@/components/timetable-header'
@@ -82,7 +82,7 @@ export default function Generated() {
 
                 <TabsContent value="schedule" className="space-y-6 mt-6">
                   {days.map((day) => (
-                    <DaySchedule key={day} day={day} slots={timetable.slots} timeSlots={timetable.timeSlots} lunchSlot={timetable.lunchSlot} facultyList={timetable.facultyList} />
+                    <DaySchedule key={day} day={day} slots={timetable.slots} lunchSlot={timetable.lunchSlot} facultyList={timetable.facultyList} />
                   ))}
                 </TabsContent>
 

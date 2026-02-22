@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { API_BASE } from '../lib/config'
+import { createContext, useContext, useEffect, useState } from 'react';
 import api from '../lib/api'
 
 type User = { id: string; email: string; name?: string; role?: string } | null;

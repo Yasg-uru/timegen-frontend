@@ -8,12 +8,11 @@ import { Calendar } from 'lucide-react'
 interface DayScheduleProps {
   day: string
   slots: Slot[]
-  timeSlots: TimeSlot[]
   lunchSlot: LunchSlot
   facultyList: Faculty[]
 }
 
-export function DaySchedule({ day, slots, timeSlots, lunchSlot, facultyList }: DayScheduleProps) {
+export function DaySchedule({ day, slots, lunchSlot, facultyList }: DayScheduleProps) {
   const daySlots = slots.filter((s) => s.day === day)
 
   const sortedSlots = [...daySlots].sort((a, b) => {

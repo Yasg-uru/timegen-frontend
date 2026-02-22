@@ -1,4 +1,4 @@
-import React from "react"
+import type { ReactNode } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { Button } from "./button"
 import { cn } from "@/lib/utils"
@@ -11,7 +11,7 @@ export default function Navbar() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
 
-  const NavLink = ({ to, children }: { to: string; children: React.ReactNode }) => (
+  const NavLink = ({ to, children }: { to: string; children: ReactNode }) => (
     <Link
       to={to}
       className={cn(
